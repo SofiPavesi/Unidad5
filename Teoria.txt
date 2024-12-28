@@ -1,0 +1,16 @@
+Interfaces gráficas,
+Django ---> para hacer apps de escritorio
+
+dentro de python:
+
+Tkinter --> es la más simple y antigua. (Estética notepad++)
+Pyqt6 --> Una interfaz mas moderna que te permite diseñar arrastrando a una pantalla intermedia los elementos con el cursor.
+KivyMD --> Es la interfaz más "linda" dentro de python, permite hacer app para android y tiene componentes(propio lenguaje y POO) 
+
+
+APPS Nativas (se programan en el lenguaje original del sistema operativo)
+
+Para programar andriod se usa JAVA o KOTLING(que también usa java) y lo visual se hace en XML.
+Para programar en iphone se una Swift o Cocoa y lo visual se usa XML. 
+
+Se puede hacer una app con python y compilarlo a kivymd 
