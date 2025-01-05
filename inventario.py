@@ -2,9 +2,10 @@ from tkinter import *
 from tkinter.messagebox import *
 import sqlite3
 from tkinter import ttk
-import re
+
+
 # ##############################################
-# MODELO
+#                       MODELO                 #
 # ##############################################
 def conexion():
     con = sqlite3.connect("inventario.db")
@@ -30,7 +31,6 @@ try:
 except:
     print("Hay un error")
 
-
 def altaProducto(nombre, descripcion, cantidad, precio, categoria, tree):
  
     print(nombre, descripcion, cantidad, precio, categoria)
@@ -43,10 +43,35 @@ def altaProducto(nombre, descripcion, cantidad, precio, categoria, tree):
     print("Alta de producto realizada correctamente.")
     actualizar_treeview(tree)
  
-
-def consultar(compra):
+def actualizar(tree, a_val, b_val, c_val, d_val, e_val):
+    valor = tree.selection()
     
-    print(compra)
+    if not valor:
+        showerror("Error", "Debe seleccionar un producto para actualizar.")
+        return
+    
+    item = tree.item(valor)
+    mi_id = item["text"]  # ID del producto (columna #0)
+    
+    # Obtener los nuevos valores desde las entradas
+    nuevo_nombre = a_val.get()
+    nueva_descripcion = b_val.get()
+    nueva_cantidad = c_val.get()
+    nuevo_precio = d_val.get()
+    nueva_categoria = e_val.get()
+    
+     # Actualizar el producto en la base de datos
+    con = conexion()
+    cursor = con.cursor()
+    sql = "UPDATE productos SET nombre = ?, descripcion = ?, cantidad = ?, precio = ?, categoria = ? WHERE id = ?"
+    data = (nuevo_nombre, nueva_descripcion, nueva_cantidad, nuevo_precio, nueva_categoria, mi_id)
+    cursor.execute(sql, data)
+    con.commit()
+
+    # Mostrar mensaje de éxito y actualizar el Treeview
+    showinfo("Éxito", "Producto actualizado correctamente.")
+    actualizar_treeview(tree)
+    
 
 def consultar(id_buscado, tree):
     try:
@@ -77,15 +102,6 @@ def consultar(id_buscado, tree):
     else:
         showwarning("Sin resultados", "No se encontró un producto con el ID ingresado.")
 
-
-
-
-
-
-
-
-
-
 def borrar(tree):
     valor = tree.selection()
     print(valor)   #('I005',)
@@ -102,7 +118,6 @@ def borrar(tree):
     cursor.execute(sql, data)
     con.commit()
     tree.delete(valor)
-
 
 def actualizar_treeview(mitreview):
     records = mitreview.get_children()
@@ -126,13 +141,18 @@ def actualizar_treeview(mitreview):
 # ##############################################
 # VISTA (LO QUE SE MUESTRA EN PANTALLA SE PONE ENTRE EL ROOT.TK() Y TERMINA EN ROOT.MAINLOOP())
 # ##############################################
-
+#Controlador
 root = Tk()
 root.title("Gestión de Inventario")
         
-titulo = Label(root, text="Ingrese sus datos", bg="DarkOrchid3", fg="thistle1", height=1, width=60)
-titulo.grid(row=0, column=0, columnspan=4, padx=1, pady=1, sticky=W+E)
+titulo = Label(root, text="Alta de Productos", bg="HotPink2", fg="thistle1", height=1, width=30)
+titulo.grid(row=0, column=0, columnspan=2, padx=1, pady=1, sticky=W+E)
 
+titulo2 = Label(root, text="Consulta de Productos por ID", bg="lemonchiffon4", fg="thistle1", height=1, width=30)
+titulo2.grid(row=0, column=2, columnspan=2, padx=1, pady=1, sticky=W+E)
+
+titulo3 = Label(root, text="Actualización y Baja de Productos", bg="Cyan4", fg="thistle1", height=1, width=30)
+titulo3.grid(row=11, column=0, columnspan=2, padx=1, pady=1, sticky=W+E)
 
 nombre = Label(root, text="Producto")
 nombre.grid(row=2, column=0, sticky=W)
@@ -146,6 +166,15 @@ categoria=Label(root, text="Categoria")
 categoria.grid(row=6, column=0, sticky=W)
 id_prod=Label(root, text="ID para Consulta")
 id_prod.grid(row=2, column=2, sticky=W)
+paso1 = Label(root, text=" 1.       Listar todos los productos del Inventario -->")
+paso1.grid(row=12, column=0, sticky=W)
+paso2 = Label(root, text=" 2.       Seleccioná el producto a actualizar/borrar.")
+paso2.grid(row=13, column=0, sticky=W)
+paso3 = Label(root, text=" 3.       Completá TODOS los campos (solo si vas actualizar). ")
+paso3.grid(row=14, column=0, sticky=W)
+paso4 = Label(root, text=" 4.       Clickeá la opción seleccionada -->        ")
+paso4.grid(row=15, column=0, sticky=W)
+
 
 # Defino variables para tomar valores de campos de entrada
 a_val, b_val, c_val, d_val, e_val, f_val = StringVar(), StringVar(), IntVar(), DoubleVar(), StringVar(), IntVar()
@@ -165,6 +194,7 @@ entrada6.grid(row = 6, column = 1)
 entrada7 = Entry(root, textvariable = f_val, width = w_ancho) 
 entrada7.grid(row = 2, column = 3)
 
+
 # --------------------------------------------------
 # TREEVIEW
 # --------------------------------------------------
@@ -183,16 +213,22 @@ tree.heading("col2", text="Descripción")
 tree.heading("col3", text="Cantidad")
 tree.heading("col4", text="Precio")
 tree.heading("col5", text="Categoria")
-tree.grid(row=10, column=0, columnspan=4)
+tree.grid(row=20, column=0, columnspan=4)
 
-boton_alta=Button(root, text="Alta", command=lambda:altaProducto(a_val.get(), b_val.get(), c_val.get(),d_val.get(),e_val.get(), tree))
-boton_alta.grid(row=7, column=1)
 
-boton_consulta = Button(root, text="Consultar", command=lambda: consultar(f_val.get(), tree))
+#lambda constituye la comunicación pasando información al bucle
+boton_alta=Button(root, text="Alta", bg="HotPink3", command=lambda:altaProducto(a_val.get(), b_val.get(), c_val.get(),d_val.get(),e_val.get(), tree))
+boton_alta.grid(row=7, column=1, sticky=W+E)
+
+boton_consulta = Button(root, text="Consultar",bg="antiqueWhite4", command=lambda: consultar(f_val.get(), tree))
 boton_consulta.grid(row=3, column=3)
 
-boton_borrar=Button(root, text="Borrar", command=lambda:borrar(tree))
-boton_borrar.grid(row=9, column=1)
+boton_borrar=Button(root, text="Borrar", bg="dim gray", command=lambda:borrar(tree))
+boton_borrar.grid(row=16, column=1, sticky=W+E )
+
+boton_actualizar = Button(root, text="Actualizar", bg="lightblue4", command=lambda: actualizar(tree, a_val, b_val, c_val,d_val,e_val))
+boton_actualizar.grid(row=15, column=1,sticky=W+E)
+
+boton_listar = Button(root, text="Listado", bg="lightblue3", command=lambda: actualizar_treeview(tree))
+boton_listar.grid(row=12, column=1,sticky=W+E)
 root.mainloop()
-
-
