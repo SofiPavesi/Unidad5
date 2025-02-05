@@ -14,3 +14,10 @@ Para programar andriod se usa JAVA o KOTLING(que también usa java) y lo visual 
 Para programar en iphone se una Swift o Cocoa y lo visual se usa XML. 
 
 Se puede hacer una app con python y compilarlo a kivymd 
+
+Clase 16-1
+Clase comienza min. 14
+1) POO
+2) Dudas gral
+
+Clase 23-1
