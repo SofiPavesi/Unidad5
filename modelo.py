@@ -45,11 +45,11 @@ class Abmc:
         showinfo("Éxito", "Producto agregado correctamente.")
         
 
-    def actualizar(self,id_prod,nombre, descripcion, cantidad, precio, categoria):
+    def actualizar(self,nombre, descripcion, cantidad, precio, categoria,id_prod):
         con = self.conexion()
         cursor = con.cursor()
-        sql = "UPDATE productos SET nombre = ?, descripcion = ?, cantidad = ?, precio = ?, categoria = ? WHERE id_prod = ?"
-        data = (str(nombre), str(descripcion), int(cantidad), float(precio), str(categoria), int(id_prod))        
+        sql = "UPDATE productos SET nombre = ?, descripcion = ?, cantidad = ?, precio = ?, categoria = ? WHERE id = ?"
+        data = (str(nombre), str(descripcion), int(cantidad), float(precio), str(categoria), int(id_prod))       
         cursor.execute(sql, data)
         con.commit()
         con.close()

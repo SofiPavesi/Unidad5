@@ -34,15 +34,14 @@ class VentanaPrincipal():
             
 
 
-        def actualizar(id_prod,nombre, descripcion, cantidad, precio, categoria):
+        def actualizar(nombre, descripcion, cantidad, precio, categoria):
             item_seleccionado = tree.selection() 
             if not item_seleccionado:
                 showwarning("Advertencia", "Debes seleccionar un producto.")
                 return
-            
-            id_prod = tree.item(item_seleccionado[0], 'text')  # 'text' es el ID (primer columna)
-            
-            retorno = self.objetodb.actualizar(id_prod, nombre, descripcion, cantidad, precio, categoria)
+
+            id_prod = tree.item(item_seleccionado[0], 'text')  # 'text' es el ID (primer columna)             
+            retorno = self.objetodb.actualizar(nombre, descripcion, cantidad, precio, categoria, id_prod)
             a_val.set(""), b_val.set(""), c_val.set(0), d_val.set(0.0), e_val.set("")
             actualizar_treeview(self,tree)
             print(retorno)
@@ -89,7 +88,7 @@ class VentanaPrincipal():
 
 
         # Defino variables para tomar valores de campos de entrada
-        a_val, b_val, c_val, d_val, e_val, f_val = StringVar(), StringVar(), IntVar(), DoubleVar(), StringVar(), IntVar()
+        a_val, b_val, c_val, d_val, e_val, f_val = StringVar(), StringVar(), IntVar(), DoubleVar(), StringVar(), StringVar()
         w_ancho = 20
 
 
@@ -138,7 +137,7 @@ class VentanaPrincipal():
         boton_borrar=Button(self.root, text="Borrar", bg="dim gray", command=lambda: borrar(tree))
         boton_borrar.grid(row=16, column=1, sticky=W+E )
 
-        boton_actualizar = Button(self.root, text="Actualizar", bg="lightblue4", command=lambda: actualizar(a_val.get(), b_val.get(), c_val.get(),d_val.get(),e_val.get(),f_val.get()))
+        boton_actualizar = Button(self.root, text="Actualizar", bg="lightblue4", command=lambda: actualizar(a_val.get(), b_val.get(), c_val.get(), d_val.get(), e_val.get()))
 
         boton_actualizar.grid(row=15, column=1,sticky=W+E)
 
