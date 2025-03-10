@@ -1,4 +1,7 @@
-import sqlite3
+from peewee import *
+import re
+
+
 
 
 
@@ -6,75 +9,57 @@ import sqlite3
 #                       MODELO                 #
 # ##############################################
 
+db=SqliteDatabase('inventario.db')
+class BaseModel(Model):
+    class Meta:
+        database = db
+        
+class Productos(BaseModel):
+    id= AutoField()
+    nombre= CharField()
+    descripcion=CharField()
+    cantidad=IntegerField()
+    precio=FloatField()
+    categoria=CharField()
 
+db.connect()
+db.create_tables([Productos]) 
 
+   
 class Abmc:
-    def __init__(self):
-        try:
-            self.conexion()
-            self.crear_tabla()
-        except Exception as e:
-            print(f"Error en la inicialización: {e}")
-
-    def conexion(self):
-        return sqlite3.connect("inventario.db")
-
-    def crear_tabla(self):
-        con = self.conexion()
-        cursor = con.cursor()
-        sql = '''CREATE TABLE IF NOT EXISTS productos(
-                        id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                        nombre TEXT NOT NULL, 
-                        descripcion TEXT NOT NULL, 
-                        cantidad INTEGER NOT NULL, 
-                        precio REAL NOT NULL, 
-                        categoria TEXT NOT NULL )'''
-        cursor.execute(sql)
-        con.commit()
-        con.close()
-
-    def altaProducto(self,nombre, descripcion, cantidad, precio, categoria):
-        con = self.conexion()
-        cursor = con.cursor()
-        data = (nombre, descripcion, cantidad, precio, categoria)
-        sql = "INSERT INTO productos(nombre, descripcion, cantidad, precio, categoria) VALUES(?, ?, ?, ?, ?)"
-        cursor.execute(sql, data)
-        con.commit()
-        con.close()
-
-    def actualizar(self,nombre, descripcion, cantidad, precio, categoria,id_prod):
-        con = self.conexion()
-        cursor = con.cursor()
-        sql = "UPDATE productos SET nombre = ?, descripcion = ?, cantidad = ?, precio = ?, categoria = ? WHERE id = ?"
-        data = (str(nombre), str(descripcion), int(cantidad), float(precio), str(categoria), int(id_prod))       
-        cursor.execute(sql, data)
-        con.commit()
-        con.close()
-
-    def consultar(self, id_buscado, tree):
-        con = self.conexion()
-        cursor = con.cursor()
-        sql = "SELECT * FROM productos WHERE id = ?"
-        cursor.execute(sql, (id_buscado,))
-        resultado = cursor.fetchone()
-        con.close()
+    def altaProducto(self, nombre, descripcion, cantidad, precio, categoria):
+        Productos.create(
+            nombre=nombre,
+            descripcion=descripcion,
+            cantidad=cantidad,
+            precio=precio,
+            categoria=categoria
+        )
+    
+    def actualizar(self, id_prod, nombre, descripcion, cantidad, precio, categoria):     
+        query = (Productos.update(
+            nombre=nombre,
+            descripcion=descripcion,
+            cantidad=cantidad,
+            precio=precio,
+            categoria=categoria
+        ).where(Productos.id == id_prod))
+        query.execute()
+        
+    def consultar(self, id_buscado):
+        resultado = Productos.get_or_none(Productos.id == id_buscado)
         return resultado
-
-
-    def borrar(self, mi_id):
-        con = self.conexion()
-        cursor = con.cursor()
-        sql = "DELETE FROM productos WHERE id = ?"
-        cursor.execute(sql, (mi_id,))
-        con.commit()
-        con.close()
-
-
-
+    
+    def borrar(self, id_prod):
+        eliminar = (Productos.delete()
+                    .where(Productos.id == id_prod))
+        eliminar.execute()
+           
     def extraer_bd(self):
-        con = self.conexion()
-        cursor = con.cursor()
-        cursor.execute("SELECT * FROM productos")
-        resultado = cursor.fetchall()
-        con.close()
-        return resultado
+        return list(Productos.select().tuples())
+    
+
+
+
+
+
