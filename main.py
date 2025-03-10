@@ -38,51 +38,49 @@ class VentanaPrincipal():
             if not item_seleccionado:
                 showwarning("Advertencia", "Debes seleccionar un producto.")
                 return
+           
+            id_producto = tree.item(item_seleccionado)["text"]  # Obtiene el ID del producto
+            
+            retorno = self.objetodb.actualizar(id_producto, nombre, descripcion, cantidad, precio, categoria)
 
-            id_prod = tree.item(item_seleccionado[0], 'text')  # 'text' es el ID (primer columna)             
-            retorno = self.objetodb.actualizar(nombre, descripcion, cantidad, precio, categoria, id_prod)
             showinfo("Éxito", "Producto actualizado correctamente.")
             a_val.set(""), b_val.set(""), c_val.set(0), d_val.set(0.0), e_val.set("")
             actualizar_treeview(self,tree)
             print(retorno)
             
-        def consultar(id_consultado, tree):
+        def consultar(id_consultado):
             try:
                 id_consultado = int(id_consultado)
             except ValueError:
                 showerror("Error", "Debe ingresar un ID numérico válido.")
                 return
 
-            retorno = self.objetodb.consultar(id_consultado, tree)
-            print(retorno)
+            producto = self.objetodb.consultar(id_consultado) 
 
-            if retorno:
-                mensaje = (f"ID: {retorno[0]}\n"
-                        f"Producto: {retorno[1]}\n"
-                        f"Descripción: {retorno[2]}\n"
-                        f"Cantidad: {retorno[3]}\n"
-                        f"Precio: ${retorno[4]:.2f}\n"
-                        f"Categoría: {retorno[5]}")
+            if producto:
+                mensaje = (f"ID: {producto.id}\n"
+                        f"Producto: {producto.nombre}\n"
+                        f"Descripción: {producto.descripcion}\n"
+                        f"Cantidad: {producto.cantidad}\n"
+                        f"Precio: ${producto.precio:.2f}\n"
+                        f"Categoría: {producto.categoria}")
                 showinfo("Producto encontrado", mensaje)
                 f_val.set("")
-                for item in tree.get_children():
-                    tree.delete(item)
-                tree.insert("", 0, text=retorno[0], values=(retorno[1], retorno[2], retorno[3], retorno[4], retorno[5]))
+                
+                # Limpiar Treeview y mostrar el producto encontrado
+                tree.delete(*tree.get_children())
+                tree.insert("", 0, text=producto.id, values=(producto.nombre, producto.descripcion, producto.cantidad, producto.precio, producto.categoria))
             else:
                 showwarning("Sin resultados", "No se encontró un producto con el ID ingresado.")
-
-            
+  
         def borrar(tree):
             valor = tree.selection()
             if not valor:  # Verifica si hay un elemento seleccionado
                 showerror("Error", "Debe seleccionar un producto para eliminar.")
                 return
-            
             item = tree.item(valor)
             mi_id = item['text']
-            
             confirmacion = askyesno("Confirmar eliminación", f"¿Seguro que desea eliminar el producto con ID {mi_id}?")
-            
             if confirmacion:
                 retorno = self.objetodb.borrar(mi_id)
                 tree.delete(valor)
@@ -166,7 +164,7 @@ class VentanaPrincipal():
         boton_alta=Button(self.root, text="Alta", bg="HotPink3", command=lambda: altaProducto(a_val.get(), b_val.get(), c_val.get(),d_val.get(),e_val.get()))
         boton_alta.grid(row=7, column=1, sticky=W+E)
 
-        boton_consulta = Button(self.root, text="Consultar",bg="antiqueWhite4", command=lambda:  consultar(f_val.get(), tree))
+        boton_consulta = Button(self.root, text="Consultar",bg="antiqueWhite4", command=lambda:  consultar(f_val.get()))
         boton_consulta.grid(row=3, column=3)
 
         boton_borrar=Button(self.root, text="Borrar", bg="dim gray", command=lambda: borrar(tree))
@@ -179,7 +177,6 @@ class VentanaPrincipal():
         boton_listar = Button(self.root, text="Listado", bg="lightblue3", command=lambda: actualizar_treeview(self, tree))
         boton_listar.grid(row=12, column=1,sticky=W+E)
 
-            
 
 
 # ########### #
