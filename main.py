@@ -28,12 +28,11 @@ class VentanaPrincipal():
         def altaProducto(nombre, descripcion, cantidad, precio, categoria):
             retorno = self.objetodb.altaProducto(nombre, descripcion, cantidad, precio, categoria)
             print(retorno)
+            showinfo("Éxito", "Producto agregado correctamente.")
             #limpiar campos que usé para crear el producto
             a_val.set(""), b_val.set(""), c_val.set(0), d_val.set(0.0), e_val.set("")
             actualizar_treeview(self,tree)
             
-
-
         def actualizar(nombre, descripcion, cantidad, precio, categoria):
             item_seleccionado = tree.selection() 
             if not item_seleccionado:
@@ -42,18 +41,54 @@ class VentanaPrincipal():
 
             id_prod = tree.item(item_seleccionado[0], 'text')  # 'text' es el ID (primer columna)             
             retorno = self.objetodb.actualizar(nombre, descripcion, cantidad, precio, categoria, id_prod)
+            showinfo("Éxito", "Producto actualizado correctamente.")
             a_val.set(""), b_val.set(""), c_val.set(0), d_val.set(0.0), e_val.set("")
             actualizar_treeview(self,tree)
             print(retorno)
             
-        def consultar(id_consultado,tree):
+        def consultar(id_consultado, tree):
+            try:
+                id_consultado = int(id_consultado)
+            except ValueError:
+                showerror("Error", "Debe ingresar un ID numérico válido.")
+                return
+
             retorno = self.objetodb.consultar(id_consultado, tree)
             print(retorno)
+
+            if retorno:
+                mensaje = (f"ID: {retorno[0]}\n"
+                        f"Producto: {retorno[1]}\n"
+                        f"Descripción: {retorno[2]}\n"
+                        f"Cantidad: {retorno[3]}\n"
+                        f"Precio: ${retorno[4]:.2f}\n"
+                        f"Categoría: {retorno[5]}")
+                showinfo("Producto encontrado", mensaje)
+                f_val.set("")
+                for item in tree.get_children():
+                    tree.delete(item)
+                tree.insert("", 0, text=retorno[0], values=(retorno[1], retorno[2], retorno[3], retorno[4], retorno[5]))
+            else:
+                showwarning("Sin resultados", "No se encontró un producto con el ID ingresado.")
+
             
         def borrar(tree):
-            retorno = self.objetodb.borrar(tree)
-            actualizar_treeview(self,tree)
-            print(retorno)
+            valor = tree.selection()
+            if not valor:  # Verifica si hay un elemento seleccionado
+                showerror("Error", "Debe seleccionar un producto para eliminar.")
+                return
+            
+            item = tree.item(valor)
+            mi_id = item['text']
+            
+            confirmacion = askyesno("Confirmar eliminación", f"¿Seguro que desea eliminar el producto con ID {mi_id}?")
+            
+            if confirmacion:
+                retorno = self.objetodb.borrar(mi_id)
+                tree.delete(valor)
+                actualizar_treeview(self,tree)
+                showinfo("Éxito", "Producto eliminado correctamente.")
+                print(retorno)
 
                 
         titulo = Label(self.root, text="Alta de Productos", bg="HotPink2", fg="thistle1", height=1, width=30)
