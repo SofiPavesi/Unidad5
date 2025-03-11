@@ -51,8 +51,7 @@ class Abmc:
         return resultado
     
     def borrar(self, id_prod):
-        eliminar = (Productos.delete()
-                    .where(Productos.id == id_prod))
+        eliminar = (Productos.delete().where(Productos.id == id_prod))
         eliminar.execute()
            
     def extraer_bd(self):

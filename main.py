@@ -26,21 +26,40 @@ class VentanaPrincipal():
                 mitreview.insert("", 0, text=fila[0], values=(fila[1], fila[2], fila[3],fila[4],fila[5]))
                 
         def altaProducto(nombre, descripcion, cantidad, precio, categoria):
+            if not nombre or not descripcion or not categoria:
+                showerror("Error.", "Se deben completar todos los campos.")
+                return
+            
+            try:
+                cantidad=int(cantidad)
+                precio=float(precio)
+            except ValueError:
+                showerror("Error.", "Cantidad y precio deben ser valores numéricos.")
+                return
+            
             retorno = self.objetodb.altaProducto(nombre, descripcion, cantidad, precio, categoria)
-            print(retorno)
             showinfo("Éxito", "Producto agregado correctamente.")
-            #limpiar campos que usé para crear el producto
             a_val.set(""), b_val.set(""), c_val.set(0), d_val.set(0.0), e_val.set("")
             actualizar_treeview(self,tree)
             
+                
         def actualizar(nombre, descripcion, cantidad, precio, categoria):
             item_seleccionado = tree.selection() 
             if not item_seleccionado:
                 showwarning("Advertencia", "Debes seleccionar un producto.")
                 return
-           
-            id_producto = tree.item(item_seleccionado)["text"]  # Obtiene el ID del producto
+            id_producto = tree.item(item_seleccionado)["text"]
             
+            if not nombre or not descripcion or not categoria:
+                showerror("Error.", "Se deben completar todos los campos.")
+                return
+            
+            try:
+                cantidad=int(cantidad)
+                precio=float(precio)
+            except ValueError:
+                showerror("Error.", "Cantidad y precio deben ser valores numéricos.")
+                return
             retorno = self.objetodb.actualizar(id_producto, nombre, descripcion, cantidad, precio, categoria)
 
             showinfo("Éxito", "Producto actualizado correctamente.")
@@ -67,7 +86,7 @@ class VentanaPrincipal():
                 showinfo("Producto encontrado", mensaje)
                 f_val.set("")
                 
-                # Limpiar Treeview y mostrar el producto encontrado
+                # Limpia Treeview y mouestra el producto encontrado
                 tree.delete(*tree.get_children())
                 tree.insert("", 0, text=producto.id, values=(producto.nombre, producto.descripcion, producto.cantidad, producto.precio, producto.categoria))
             else:
@@ -75,7 +94,7 @@ class VentanaPrincipal():
   
         def borrar(tree):
             valor = tree.selection()
-            if not valor:  # Verifica si hay un elemento seleccionado
+            if not valor:  
                 showerror("Error", "Debe seleccionar un producto para eliminar.")
                 return
             item = tree.item(valor)
@@ -121,8 +140,9 @@ class VentanaPrincipal():
 
 
         # Defino variables para tomar valores de campos de entrada
-        a_val, b_val, c_val, d_val, e_val, f_val = StringVar(), StringVar(), IntVar(), DoubleVar(), StringVar(), StringVar()
+        a_val, b_val, c_val, d_val, e_val, f_val = StringVar(), StringVar(), StringVar(), StringVar(), StringVar(), StringVar()
         w_ancho = 20
+        #Pongo los campo de entrada como str porque los valido con excepciones en la propia fucion 
 
 
         entrada2 = Entry(self.root, textvariable = a_val, width = w_ancho) 
